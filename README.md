@@ -15,7 +15,8 @@ Detailed Writeup is here : https://sn0xs-organization.gitbook.io/sn0x-order.org/
 
 Gitea's `act_runner` appends workflow-controlled `jobs.<job>.container.options` directly to Docker's `HostConfig` for the job container without sanitization. When privileged mode is disabled, `sanitizeConfig()` only strips `Binds` and `Mounts` host namespace flags, capability expansion, and security profile overrides pass through untouched.
 
-A workflow author with push access to any repository backed by a shared Docker runner can enter host PID/IPC/mount namespaces and execute arbitrary commands as root on the runner host — no runner-level privileged mode required.
+A workflow author with push access to any repository backed by a shared Docker runner can enter host PID/IPC/mount namespaces and execute arbitrary commands as root on the runner host no runner-level privileged mode required.
+
 ---
 
 ## Vulnerability Details
