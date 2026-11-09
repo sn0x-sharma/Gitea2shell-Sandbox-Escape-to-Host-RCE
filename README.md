@@ -30,8 +30,6 @@ A workflow author with push access to any repository backed by a shared Docker r
 | **Fixed** | `gitea.com/gitea/runner > 3.0.0` |
 | **CWE** | CWE-269 — Improper Privilege Management |
 | **Researcher** | [@sn0x-sharma](https://github.com/sn0x-sharma) |
-| **Disclosed** | June 28, 2026 |
-| **Published** | August 15, 2026 |
 
 ---
 
